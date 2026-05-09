@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Методический лонгрид: От НИР к готовой ВКР</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/fontsource-jetbrains-mono@5.1.2/cyrillic.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f9fb;
+      --surface: #ffffff;
+      --text: #1a1f36;
+      --text-secondary: #4b5563;
+      --accent: #2563eb;
+      --accent-light: #dbeafe;
+      --accent-hover: #1d4ed8;
+      --border: #e5e7eb;
+      --success: #059669;
+      --success-light: #d1fae5;
+      --warning: #d97706;
+      --warning-light: #fef3c7;
+      --font-sans: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      z-index: 1000;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #7c3aed);
+      width: 0%;
+      transition: width 0.15s ease;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%);
+      color: white;
+      padding: 80px 24px 60px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.85;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .badge-container {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .main-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 120px;
+    }
+
+    .toc {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+    }
+
+    .toc h2 {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .toc-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .toc-item {
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg);
+      border: 1px solid transparent;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      font-weight: 500;
+    }
+
+    .toc-item:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .accordion-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .accordion-header:hover {
+      background: var(--bg);
+    }
+
+    .accordion-header h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .accordion-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+      color: var(--accent);
+    }
+
+    .accordion-section.open .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .accordion-section.open .accordion-body {
+      max-height: 2000px;
+      opacity: 1;
+    }
+
+    .accordion-content {
+      padding: 0 24px 24px;
+      color: var(--text-secondary);
+    }
+
+    .accordion-content p {
+      margin-bottom: 12px;
+    }
+
+    .accordion-content ul, .accordion-content ol {
+      padding-left: 24px;
+      margin-bottom: 12px;
+    }
+
+    .accordion-content li {
+      margin-bottom: 6px;
+    }
+
+    .highlight-box {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .highlight-box.warning {
+      background: var(--warning-light);
+      border-left-color: var(--warning);
+    }
+
+    .highlight-box.success {
+      background: var(--success-light);
+      border-left-color: var(--success);
+    }
+
+    .highlight-box h4 {
+      color: var(--text);
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+
+    table th {
+      background: var(--bg);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+    }
+
+    table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .structure-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .structure-pages {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+      min-width: 70px;
+      padding-top: 2px;
+    }
+
+    .structure-text {
+      flex: 1;
+    }
+
+    .formula-block {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0;
+      text-align: center;
+      font-family: 'Times New Roman', serif;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 60px 16px 40px;
+      }
+      .main-content {
+        padding: 24px 16px 80px;
+      }
+      .toc {
+        padding: 20px 16px;
+      }
+      table {
+        font-size: 0.85rem;
+      }
+      table th, table td {
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <header>
+    <h1>Сборка ВКР: от НИР к готовой работе</h1>
+    <p>Методическое руководство по написанию, оформлению и защите выпускной квалификационной работы</p>
+    <div class="badge-container">
+      <span class="badge">📚 Институт экономики и управления</span>
+      <span class="badge">📝 55–80 стр.</span>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <nav class="toc">
+      <h2>📖 Оглавление</h2>
+      <ul class="toc-list">
+        <li><a href="#s1" class="toc-item">1. Структура ВКР</a></li>
+        <li><a href="#s2" class="toc-item">2. Введение</a></li>
+        <li><a href="#s3" class="toc-item">3. Глава 1: Теоретическая часть</a></li>
+        <li><a href="#s4" class="toc-item">4. Глава 2: Эмпирическое исследование</a></li>
+        <li><a href="#s5" class="toc-item">5. Глава 3: Прикладное решение</a></li>
+        <li><a href="#s6" class="toc-item">6. Выводы и заключение</a></li>
+        <li><a href="#s7" class="toc-item">7. Оформление работы</a></li>
+        <li><a href="#s8" class="toc-item">8. Список литературы</a></li>
+        <li><a href="#s9" class="toc-item">9. Приложения</a></li>
+      </ul>
+    </nav>
+
+    <!-- Section 1 -->
+    <section class="accordion-section open" id="s1">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>📐</span> 1. Структура ВКР</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="highlight-box">
+            <h4>📏 Объём: строго 55–80 стр. (без приложений)</h4>
+          </div>
+          <p>Рекомендуемая структура выпускной квалификационной работы:</p>
+          
+          <div class="structure-item">
+            <span class="structure-pages">1 стр.</span>
+            <span class="structure-text"><strong>Титульный лист</strong></span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">1–2 стр.</span>
+            <span class="structure-text"><strong>Оглавление</strong></span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">2–3 стр.</span>
+            <span class="structure-text"><strong>Введение</strong></span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">20–25 стр.</span>
+            <span class="structure-text"><strong>Глава 1</strong> — обзор теоретических источников, обоснование методов</span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">18–25 стр.</span>
+            <span class="structure-text"><strong>Глава 2</strong> — результаты эмпирического исследования</span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">20–30 стр.</span>
+            <span class="structure-text"><strong>Глава 3</strong> — прикладное решение задачи, экономические и правовые обоснования</span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">1–2 стр.</span>
+            <span class="structure-text"><strong>Выводы по главам</strong> (после каждой)</span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">2–4 стр.</span>
+            <span class="structure-text"><strong>Заключение</strong></span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">2–4 стр.</span>
+            <span class="structure-text"><strong>Список использованных источников</strong></span>
+          </div>
+          <div class="structure-item">
+            <span class="structure-pages">—</span>
+            <span class="structure-text"><strong>Приложения</strong> (не входят в объём)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="accordion-section" id="s2">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>🎯</span> 2. Структура введения</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <p>Введение должно содержать следующие структурные элементы:</p>
+          
+          <table>
+            <tr><th>Элемент</th><th>Описание</th></tr>
+            <tr><td><strong>Актуальность</strong></td><td>Определяется необходимостью решения конкретной проблемы. <em>Пример: «...необходимостью внедрения практико-ориентированных методов обучения для эффективной адаптации...»</em></td></tr>
+            <tr><td><strong>Проблема исследования</strong></td><td>Недостаточная степень разработанности способов реализации подхода.</td></tr>
+            <tr><td><strong>Объект</strong></td><td>Процесс, в рамках которого проводится исследование. <em>Пример: процесс обучения иностранных сотрудников.</em></td></tr>
+            <tr><td><strong>Предмет</strong></td><td>Конкретные аспекты объекта. <em>Пример: способы реализации практико-ориентированного подхода.</em></td></tr>
+            <tr><td><strong>Цель</strong></td><td>Разработать и обосновать рекомендации по совершенствованию.</td></tr>
+            <tr><td><strong>Задачи</strong></td><td>Конкретные шаги для достижения цели (6–7 задач).</td></tr>
+          </table>
+
+          <div class="highlight-box success">
+            <h4>✅ Связь задач и структуры</h4>
+            <p>Каждая задача введения должна соответствовать конкретному параграфу ВКР:</p>
+            <ul>
+              <li>Задачи 1–3 → Глава 1 (теория)</li>
+              <li>Задачи 4–5 → Глава 2 (анализ)</li>
+              <li>Задачи 6–7 → Глава 3 (проект/рекомендации)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="accordion-section" id="s3">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>📚</span> 3. Глава 1: Теоретическая часть</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <p>Первая глава посвящена теоретическому обоснованию исследования и содержит:</p>
+
+          <h4 style="margin: 16px 0 8px;">📝 Степень разработанности темы</h4>
+          <ul>
+            <li>Краткий обзор и обобщённый анализ известных научных достижений</li>
+            <li>Все значимые публикации по теме исследования</li>
+            <li>Какие вопросы раскрыты на текущий момент</li>
+            <li>Что осталось нераскрытым</li>
+            <li>Определение общего направления собственного исследования</li>
+          </ul>
+          <p><strong>Вывод:</strong> «Тема раскрыта частично / не освещена / требует разработки».</p>
+
+          <h4 style="margin: 16px 0 8px;">🧠 Теоретическая основа</h4>
+          <p>Совокупность концепций, теорий, взглядов, подходов, научных данных, накопленных по изучаемой теме + обоснование методов исследования.</p>
+
+          <h4 style="margin: 16px 0 8px;">📊 Источники для обоснования актуальности</h4>
+          <ul>
+            <li><strong>Научные публикации:</strong> статьи, монографии, диссертации</li>
+            <li><strong>Статистические данные:</strong> <em>Пример: «85% работодателей планируют повысить квалификацию...» (Всемирный экономический форум)</em></li>
+            <li><strong>Аналитические отчёты:</strong> <em>Пример: «К 2030 году 70% навыков изменятся» (LinkedIn)</em></li>
+            <li><strong>Нормативно-правовая база:</strong> стратегии, концепции, федеральные законы</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="accordion-section" id="s4">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>🔬</span> 4. Глава 2: Эмпирическое исследование</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="highlight-box warning">
+            <h4>⚠️ Ключевое правило</h4>
+            <p>В этой части работы <strong>следует избегать изложения теоретических сведений</strong>, но обязательно ссылаться на выводы, полученные в теоретической части (Глава 1).</p>
+          </div>
+
+          <h4 style="margin: 16px 0 8px;">📈 Возможные результаты эмпирического исследования:</h4>
+          <ul>
+            <li>Характеристика организации применительно к анализируемой проблеме</li>
+            <li>Характеристика структуры и последовательности выполнения процессов</li>
+            <li>Анализ внешней и внутренней среды с использованием соответствующих инструментов</li>
+            <li>Анализ стратегии организации с точки зрения исследовательской задачи</li>
+            <li>Анализ организационной культуры</li>
+            <li>Анализ мотивации, вовлечённости и удовлетворённости персонала</li>
+            <li>Выявление точек разрыва в исследуемых процессах</li>
+          </ul>
+
+          <h4 style="margin: 16px 0 8px;">🛠 Рекомендуемые методы:</h4>
+          <ul>
+            <li>Выполнение наблюдений</li>
+            <li>Констатирующий эксперимент</li>
+            <li>Контекстный анализ деловых документов</li>
+            <li>Сбор и анализ статистических данных</li>
+            <li>Анализ типовых подходов, классификаций</li>
+            <li>Сравнение лучших практик, выполнение аналогий</li>
+            <li>Проведение опросов (анкетирование, интервью, фокус-группы)</li>
+            <li>Выполнение расчётов (математических, экономических)</li>
+            <li>Моделирование</li>
+          </ul>
+
+          <div class="highlight-box">
+            <h4>💡 Пример оформления</h4>
+            <p>«За основу анализа процесса обучения иностранных сотрудников была использована схема процесса, с которой можно ознакомиться в Приложении А. Рассмотрим общую структуру и ключевые элементы процесса.»</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="accordion-section" id="s5">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>🏗</span> 5. Глава 3: Прикладное решение</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <p>Третья глава посвящена практическому решению профессиональной или исследовательской задачи с экономическими и правовыми обоснованиями.</p>
+
+          <h4 style="margin: 16px 0 8px;">📑 Форма описания рекомендаций:</h4>
+          <ul>
+            <li>Алгоритм, процессная модель</li>
+            <li>Система, модель</li>
+            <li>Программа мероприятий</li>
+            <li>Программа повышения квалификации</li>
+            <li>Проект положения, документированной процедуры, инструкции</li>
+          </ul>
+
+          <h4 style="margin: 16px 0 8px;">📊 Структура проекта (пример):</h4>
+          <table>
+            <tr><th>Параграф</th><th>Содержание</th></tr>
+            <tr><td><strong>3.1</strong></td><td>Содержание проектно-практических рекомендаций по реализации подхода</td></tr>
+            <tr><td><strong>3.2</strong></td><td>Оценка эффективности проектно-практических рекомендаций</td></tr>
+          </table>
+          <p>Все предложенные мероприятия необходимо объединить в единый проект. Основные параметры проекта рекомендуется представить в таблице.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section class="accordion-section" id="s6">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>📝</span> 6. Выводы и заключение</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h4 style="margin: 0 0 12px;">Выводы по главам (1–2 стр. после каждой главы)</h4>
+          <p>Структура вывода по главе:</p>
+          <ul>
+            <li><strong>Задача 1 → Параграф 1.1 → Результат</strong></li>
+            <li><strong>Задача 2 → Параграф 1.2 → Результат</strong></li>
+            <li>Общий вывод по главе 1/2/3</li>
+          </ul>
+          <p><em>Пример:</em> «Проведённый теоретический анализ позволил систематизировать концептуальные основы обучения персонала, определив его как целенаправленный и системный процесс...»</p>
+
+          <h4 style="margin: 16px 0 8px;">Заключение (2–4 стр.)</h4>
+          <p>В заключении необходимо отразить:</p>
+          <ul>
+            <li>Какие ставились задачи и как они решены в ВКР</li>
+            <li>Как достигнута цель ВКР</li>
+            <li>Какие результаты получены лично или при личном участии автора</li>
+            <li>Задачи, оставшиеся нерешёнными</li>
+            <li>Круг вопросов для продолжения исследования</li>
+          </ul>
+
+          <div class="highlight-box success">
+            <h4>✅ Пример формулировки</h4>
+            <p>«В ходе проведённого исследования были решены поставленные задачи, направленные на...<br>
+            ✓ Анализ организационной характеристики компании выявил специфику кадровой политики...<br>
+            ✓ Анализ текущей системы обучения персонала...<br>
+            ✓ Для решения выявленных проблем были предложены следующие рекомендации...»</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7 -->
+    <section class="accordion-section" id="s7">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>🎨</span> 7. Оформление работы</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <table>
+            <tr><th>Элемент</th><th>Требование</th></tr>
+            <tr>
+              <td><strong>Главы</strong></td>
+              <td>Прописные буквы, полужирный 14 шрифт, по центру, без точки. <em>Пример: <strong>1 НАЗВАНИЕ ГЛАВЫ</strong></em></td>
+            </tr>
+            <tr>
+              <td><strong>Параграфы</strong></td>
+              <td>Строчные буквы, полужирный 14 шрифт, с красной строки, без точки. <em>Пример: <strong>1.1 Название параграфа</strong></em></td>
+            </tr>
+            <tr>
+              <td><strong>Нумерация страниц</strong></td>
+              <td>По порядку, середина нижнего поля, шрифт 12 Times New Roman. Титульный лист не нумеруется, следующая стр. = «2»</td>
+            </tr>
+            <tr>
+              <td><strong>Рисунки</strong></td>
+              <td>Под рисунком: <em>«Рисунок 1.3 – Название рисунка»</em> по центру, без точки. Ссылка в тексте обязательна.</td>
+            </tr>
+            <tr>
+              <td><strong>Таблицы</strong></td>
+              <td>Над таблицей слева: <em>«Таблица 1.3 – Название таблицы»</em>, без точки. При переносе: <em>«Продолжение таблицы 1.3»</em></td>
+            </tr>
+            <tr>
+              <td><strong>Формулы</strong></td>
+              <td>Номер в круглых скобках на уровне формулы справа: <em>(1)</em>. Пояснения символов — под формулой или в тексте.</td>
+            </tr>
+            <tr>
+              <td><strong>Оглавление</strong></td>
+              <td>Автособираемое. Заголовок 1 = названия глав, Заголовок 2 = параграфы. При изменении текста — «обновить поле».</td>
+            </tr>
+          </table>
+
+          <div class="formula-block">
+            E = mc<sup>2</sup> (1)
+          </div>
+          <p style="text-align:center; font-size: 0.9rem; color: var(--text-secondary);">Пример оформления формулы</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8 -->
+    <section class="accordion-section" id="s8">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>📖</span> 8. Список литературы</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <ul>
+            <li>Все записи располагаются по <strong>алфавиту</strong> фамилий авторов или первых слов заглавий</li>
+            <li>Литература на других языках — в отдельном алфавитном ряду после русских источников</li>
+            <li>Ссылки в тексте: порядковый номер в квадратных скобках <strong>[12, c. 45]</strong></li>
+            <li>Оформление строго по <strong>ГОСТ Р 7.0.100-2018</strong></li>
+          </ul>
+
+          <div class="highlight-box">
+            <h4>📝 Пример оформления</h4>
+            <p style="font-size: 0.9rem; line-height: 1.5;">Турина А. О. Сравнительный анализ психологических идей В. И. Несмелова и С. Л. Рубинштейна / А. О. Турина, М. Я. Дворецкая // Ярославский педагогический вестник. – 2021. – Том 5, № 122. – С. 134-142.</p>
+          </div>
+
+          <p>По тексту можно использовать сноски, которые преобразуются в концевые для формирования списка источников.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 9 -->
+    <section class="accordion-section" id="s9">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <h2><span>📎</span> 9. Приложения</h2>
+        <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <p>Содержат материалы, подтверждающие результаты исследований, объём которых не позволяет размещать их в тексте ВКР (таблицы и схемы более 2 стр.).</p>
+          <ul>
+            <li>Нумеруются заглавными буквами русского алфавита: <strong>Приложение А, Приложение Б, Приложение В</strong></li>
+            <li>Располагаются после списка источников</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Progress bar
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    });
+
+    // Accordion
+    function toggleAccordion(header) {
+      const section = header.parentElement;
+      const isOpen = section.classList.contains('open');
+      
+      // Close all
+      document.querySelectorAll('.accordion-section').forEach(s => s.classList.remove('open'));
+      
+      // Toggle current
+      if (!isOpen) {
+        section.classList.add('open');
+      }
+    }
+
+    // TOC smooth scroll
+    document.querySelectorAll('.toc-item').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.classList.add('open');
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
